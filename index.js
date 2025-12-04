@@ -56,8 +56,8 @@ app.get("/auth/callback", async (req, res) => {
       { params: { access_token } }
     );
     console.log("BUSINESS LIST:", businesses.data.data);
+    const business_id = businesses.data.data?.[2]?.id || null;
     console.log("BUSINESS ID:", business_id);   
-    const business_id = businesses.data.data?.[0]?.id || null;
     // ==================================
     // GET WHATSAPP BUSINESS ACCOUNTS
     // ==================================
