@@ -10,7 +10,7 @@ app.use(express.json());
 // Paso 1: URL que tu widget abrirá
 app.get("/auth/login", (req, res) => {
   const url =
-    `https://www.facebook.com/v20.0/dialog/oauth?client_id=${process.env.META_APP_ID}` +
+    `https://www.facebook.com/v23.0/dialog/oauth?client_id=${process.env.META_APP_ID}` +
     `&redirect_uri=${encodeURIComponent(process.env.META_REDIRECT_URI)}` +
     `&scope=business_management,whatsapp_business_messaging,whatsapp_business_management,pages_show_list,pages_messaging`;
 
@@ -24,7 +24,7 @@ app.get("/auth/callback", async (req, res) => {
     if (!code) return res.status(400).send("Missing code");
     // === EXCHANGE FOR ACCESS TOKEN ===
     const tokenRes = await axios.get(
-      "https://graph.facebook.com/v20.0/oauth/access_token",
+      "https://graph.facebook.com/v23.0/oauth/access_token",
       {
         params: {
           client_id: process.env.META_APP_ID,
@@ -35,17 +35,22 @@ app.get("/auth/callback", async (req, res) => {
       }
     );
     const access_token = tokenRes.data.access_token;
+    const perms = await axios.get(
+      "https://graph.facebook.com/v23.0/me/permissions",
+      { params: { access_token } }
+    );
+    console.log("PERMISOS DEL TOKEN:", perms.data.data);
     // ================
     // GET USER PROFILE
     // ================
-    const user = await axios.get("https://graph.facebook.com/v20.0/me", {
+    const user = await axios.get("https://graph.facebook.com/v23.0/me", {
       params: { access_token, fields: "id,name" },
     });
     // ==================================
     // GET BUSINESS ACCOUNTS OF THIS USER
     // ==================================
     const businesses = await axios.get(
-      `https://graph.facebook.com/v20.0/${user.data.id}/businesses`,
+      `https://graph.facebook.com/v23.0/${user.data.id}/businesses`,
       { params: { access_token } }
     );
     const business_id = businesses.data.data?.[0]?.id || null;
@@ -55,7 +60,7 @@ app.get("/auth/callback", async (req, res) => {
     let waba_id = null;
     if (business_id) {
       const wabaRes = await axios.get(
-        `https://graph.facebook.com/v20.0/${business_id}/owned_whatsapp_business_accounts`,
+        `https://graph.facebook.com/v23.0/${business_id}/owned_whatsapp_business_accounts`,
         { params: { access_token } }
       );
       waba_id = wabaRes.data.data?.[0]?.id || null;
@@ -66,7 +71,7 @@ app.get("/auth/callback", async (req, res) => {
     let phone_numbers = [];
     if (waba_id) {
       const phoneRes = await axios.get(
-        `https://graph.facebook.com/v20.0/${waba_id}/phone_numbers`,
+        `https://graph.facebook.com/v23.0/${waba_id}/phone_numbers`,
         { params: { access_token } }
       );
       phone_numbers = phoneRes.data.data;
@@ -75,7 +80,7 @@ app.get("/auth/callback", async (req, res) => {
     // GET PAGES (OPTIONAL)
     // ==================================
     const pages = await axios.get(
-      `https://graph.facebook.com/v20.0/me/accounts`,
+      `https://graph.facebook.com/v23.0/me/accounts`,
       { params: { access_token } }
     );
     // ============
