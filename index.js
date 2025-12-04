@@ -46,6 +46,7 @@ app.get("/auth/callback", async (req, res) => {
     const user = await axios.get("https://graph.facebook.com/v23.0/me", {
       params: { access_token, fields: "id,name" },
     });
+    console.log("USUARIOS",user)
     // ==================================
     // GET BUSINESS ACCOUNTS OF THIS USER
     // ==================================
@@ -53,6 +54,7 @@ app.get("/auth/callback", async (req, res) => {
       `https://graph.facebook.com/v23.0/${user.data.id}/businesses`,
       { params: { access_token } }
     );
+    console.log("NEGOCIO",businesses)
     const business_id = businesses.data.data?.[0]?.id || null;
     // ==================================
     // GET WHATSAPP BUSINESS ACCOUNTS
@@ -63,6 +65,7 @@ app.get("/auth/callback", async (req, res) => {
         `https://graph.facebook.com/v23.0/${business_id}/owned_whatsapp_business_accounts`,
         { params: { access_token } }
       );
+      console.log("WABA", wabaRes)
       waba_id = wabaRes.data.data?.[0]?.id || null;
     }
     // ==================================
@@ -74,6 +77,7 @@ app.get("/auth/callback", async (req, res) => {
         `https://graph.facebook.com/v23.0/${waba_id}/phone_numbers`,
         { params: { access_token } }
       );
+      console.log("PHONE NUMBERS", phoneRes)
       phone_numbers = phoneRes.data.data;
     }
     // ==================================
@@ -83,6 +87,7 @@ app.get("/auth/callback", async (req, res) => {
       `https://graph.facebook.com/v23.0/me/accounts`,
       { params: { access_token } }
     );
+    console.log("PAGES", pages.data.data);
     // ============
     // RESPONSE HTML
     // ============
