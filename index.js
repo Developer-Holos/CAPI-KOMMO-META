@@ -46,7 +46,8 @@ app.get("/auth/callback", async (req, res) => {
     const user = await axios.get("https://graph.facebook.com/v23.0/me", {
       params: { access_token, fields: "id,name" },
     });
-    console.log("USUARIOS",user)
+    console.log("USER ID:", user.data.id);
+    console.log("USER NAME:", user.data.name);
     // ==================================
     // GET BUSINESS ACCOUNTS OF THIS USER
     // ==================================
@@ -54,7 +55,8 @@ app.get("/auth/callback", async (req, res) => {
       `https://graph.facebook.com/v23.0/${user.data.id}/businesses`,
       { params: { access_token } }
     );
-    console.log("NEGOCIO",businesses)
+    console.log("BUSINESS LIST:", businesses.data.data);
+    console.log("BUSINESS ID:", business_id);   
     const business_id = businesses.data.data?.[0]?.id || null;
     // ==================================
     // GET WHATSAPP BUSINESS ACCOUNTS
@@ -65,7 +67,8 @@ app.get("/auth/callback", async (req, res) => {
         `https://graph.facebook.com/v23.0/${business_id}/owned_whatsapp_business_accounts`,
         { params: { access_token } }
       );
-      console.log("WABA", wabaRes)
+      console.log("WABA LIST:", wabaRes?.data?.data);
+      console.log("WABA ID:", waba_id);
       waba_id = wabaRes.data.data?.[0]?.id || null;
     }
     // ==================================
@@ -77,8 +80,8 @@ app.get("/auth/callback", async (req, res) => {
         `https://graph.facebook.com/v23.0/${waba_id}/phone_numbers`,
         { params: { access_token } }
       );
-      console.log("PHONE NUMBERS", phoneRes)
       phone_numbers = phoneRes.data.data;
+      console.log("PHONE NUMBERS:", phone_numbers);
     }
     // ==================================
     // GET PAGES (OPTIONAL)
@@ -87,7 +90,7 @@ app.get("/auth/callback", async (req, res) => {
       `https://graph.facebook.com/v23.0/me/accounts`,
       { params: { access_token } }
     );
-    console.log("PAGES", pages.data.data);
+    console.log("PAGES:", pages.data.data);
     // ============
     // RESPONSE HTML
     // ============
